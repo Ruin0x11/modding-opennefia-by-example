@@ -1,0 +1,9 @@
+[book]
+title = "Modding OpenNefia by Example"
+description = "Provides some code examples for building a customized Elona."
+authors = ["Ruin0x11"]
+language = "en"
+src = "src"
+
+[language.en]
+name = "English"
