@@ -53,7 +53,7 @@ data:add {
 },
 ```
 
-Now, create your new character in the game world.
+Now you can create your new character in the game world.
 
 ```lua
 > Chara.create("example.my_putit", Map.current())
@@ -61,8 +61,9 @@ Now, create your new character in the game world.
 ```
 
 In vanilla, there was a feature to add "Custom NPCs", or "CNPCs", by adding some
-special text files. In OpenNefia, there is no such distinction - every character
-is defined the same, and that means you can add your own without much hassle.
+special text files to a user directory. In OpenNefia, there is no such
+distinction - every character is defined the same, and hopefully that means you
+should be able to add your own without too much hassle.
 
 ### Localization
 
@@ -91,7 +92,7 @@ return {
 ## Races
 
 Most of the interesting parts of each character are controlled by `race` and
-`class`. Let's go over those now.
+`class`. Let's go over these now.
 
 Races have type `base.race`. Here is an example:
 
@@ -125,11 +126,6 @@ data:add {
 
    },
 
-   -- Traits for this character, and their initial levels, of type `base.trait`.
-   traits = {
-      ["elona.perm_magic"] = 1,
-   },
-
    -- Skills and stats for this character, and their initial levels, of type
    -- `base.skill`.
    skills = {
@@ -149,6 +145,11 @@ data:add {
       ["elona.casting"] = 5,
       ["elona.literacy"] = 3,
       ["elona.magic_device"] = 3,
+   },
+
+   -- Traits for this character, and their initial levels, of type `base.trait`.
+   traits = {
+      ["elona.perm_magic"] = 1,
    },
 
    -- Body parts for this character, of type `base.body_part`.

@@ -15,15 +15,15 @@ data:add {
    image = "elona.item_crystal",
    
    -- Base value of this item.
-   value = 450,
+   value = 100000,
    
    -- Base weight of this item. 1000 means "1.0s".
-   weight = 1600,
+   weight = 1000,
    
    -- These two parameters control how rare this item is when randomly
    -- generating items. The default formula is:
    -- floor(rarity / (1000 + abs(wanted_level - item_level) * coefficient) + 1)
-   rarity = 1000000,
+   rarity = 1000,
    coefficient = 100,
    
    -- List of gods this item can be offered to. (optional)
@@ -38,8 +38,8 @@ data:add {
    -- randomly generated when digging through walls.
    categories = { "elona.ore" },
    
-   -- Light source of this item (optional). Use this to make items behave like
-   -- the campfire, where getting closer to them makes the screen brighter.
+   -- Light source of this item (optional). Use this to make the item behave like
+   -- the campfire, where getting closer to it makes the screen brighter.
    light = {
        chip = "light_item",
        bright = 35,
@@ -106,7 +106,7 @@ taken directly from there.
 
 ### Weapons and Armor
 
-Any item that has a nonzero `dice_x` property and can be equipped in a hand
+Any item that has a non-zero `dice_x` property and can be equipped in a hand
 equipment slot counts as a melee weapon.
 
 ```lua
@@ -137,7 +137,7 @@ data:add {
 }
 ```
 
-Any item that has at a nonzero `dice_x` property and can be equipped in a
+Any item that has a non-zero `dice_x` property and can be equipped in a
 ranged/ammo equipment slot property counts as a ranged weapon/ammo.
 
 ```lua
@@ -234,44 +234,44 @@ where ranged weapons can also be wielded in a melee equipment slot. The engine's
 code would have to be changed in the future to support mods that add special
 behaviors like these.
 
-### Magic Items
+### Magical Items
 
-You can define new potions, rods, scrolls, and spellbooks. Each one has a few
-extra properties to set up. Here are some examples taken from the base game.
+You can define new potions, rods, scrolls, and spellbooks. Each kind of magic
+item has a few extra properties that need to be defined. Here are some examples
+taken from the base game.
 
-See the section on [magic](magic.md) for information on defining new spells.
+See the section on [magic](magic.md) for information on defining new spells or
+item effects.
 
 #### Potions
 
 ```lua
 data:add {
-    _type = "base.item",
-    _id = "potion_of_healing",
+   _type = "base.item",
+   _id = "potion_of_healing",
 
-   -- These fields are necessary for unidentified magic items to be generated
-   -- with a randomly generated color/name.
-    knownnameref = "potion",
-    originalnameref2 = "potion",
-    has_random_name = true,
-    color = "Random",
+  -- The following properties are needed in order for unidentified magical items
+  -- to be generated with a randomly generated color/name.
+   knownnameref = "potion",
+   originalnameref2 = "potion",
+   has_random_name = true,
+   color = "Random",
 
-    on_drink = function(item, params)
-        return Magic.drink_potion(item, "elona.heal_critical", 300, params)
-    end,
+   on_drink = function(item, params)
+       return Magic.drink_potion(item, "elona.heal_critical", 300, params)
+   end,
 
-    image = "elona.item_potion",
-    value = 3000,
-    weight = 120,
-    level = 15,
-    category = 52000,
-    subcategory = 52001,
-    rarity = 700000,
-    coefficient = 50,
+   image = "elona.item_potion",
+   value = 3000,
+   weight = 120,
+   level = 15,
+   rarity = 700000,
+   coefficient = 50,
 
-    categories = {
-        "elona.drink",
-        "elona.drink_potion"
-    }
+   categories = {
+       "elona.drink",
+       "elona.drink_potion"
+   }
 }
 ```
 
@@ -287,9 +287,13 @@ data:add {
    has_random_name = true,
    color = "Random",
 
+   -- Indicates that this item can be recharged.
    has_charge = true,
+
+   -- Controls the number of charges - higher means more charges.
    charge_level = 12,
 
+   -- Set the number of charges when this item is generated.
    on_init_params = function(self)
       self.charges = 12 + Rand.rnd(12) - Rand.rnd(12)
    end,
@@ -301,7 +305,6 @@ data:add {
    image = "elona.item_rod",
    value = 840,
    weight = 800,
-   category = 56000,
    coefficient = 0,
 
    categories = { "elona.rod" }
@@ -320,16 +323,15 @@ data:add {
    has_random_name = true,
    color = "Random",
 
-   image = "elona.item_scroll",
-   value = 3500,
-   weight = 20,
-   category = 53000,
-   rarity = 70000,
-   coefficient = 0,
-
    on_read = function(self, params)
       return Magic.read_scroll(self, {{ _id = "elona.buff_incognito", power = 300 }}, params)
    end,
+
+   image = "elona.item_scroll",
+   value = 3500,
+   weight = 20,
+   rarity = 70000,
+   coefficient = 0,
 
    categories = { "elona.scroll" }
 }
@@ -347,13 +349,9 @@ data:add {
    has_random_name = true,
    color = "Random",
 
-   -- Indicates that this item can be recharged.
    has_charge = true,
-
-   -- Controls the number of charges - higher means more charges.
    charge_level = 3,
-
-   -- Set the number of charges when this item is generated.
+   
    on_init_params = function(self)
        self.charges = 3 + Rand.rnd(3) - Rand.rnd(3)
    end,
@@ -366,7 +364,6 @@ data:add {
    image = "elona.item_spellbook",
    value = 8900,
    weight = 380,
-   category = 54000,
    rarity = 300000,
    coefficient = 0,
 
@@ -426,8 +423,8 @@ data:add {
 
 ### Useable Items
 
-Some items have a "use" action, like the sewing kit or barbecue set. Here is how
-to implement this, with the `on_use` callback:
+Some items have a "use" action, like the sewing kit or barbecue set. To
+implement this, specify an `on_use` callback:
 
 ```lua
 data:add {
@@ -479,10 +476,11 @@ example in the vanilla items - is the fruit tree. It has the following
 behaviors:
 
 - When generated, it is set up to produce fruits of a random type.
-- Bashing it produces a fruit, if there are any left on the tree.
-- The number of fruit left on the tree is added to when the map gets restocked.
+- Bashing it produces a single fruit and decrements the fruit count, if there
+  are any fruits left on the tree.
+- The number of fruits left on the tree is added to when the map gets restocked.
 
-The below item definition implements these behaviors with callbacks and event
+The below item definition implements these behaviors using callbacks and event
 handlers. First, let's take a look at the entire thing, then break down the
 interesting parts one at a time.
 
@@ -640,10 +638,10 @@ end
 
 See `api/IEventEmitter.lua` for more details.
 
-It's useful to note that callbacks like `on_init_params` are really just
-wrappers around event handlers, which make it easier to just define a function
-on the item without having to add the `events` table and set an event priority
-and name. Here is the code in the engine that actually implements
+It's useful to note that callbacks like `on_init_params` and `on_use` are really
+just wrappers around event handlers, which make it easier to just define a
+function on the item without having to add the `events` table and set an event
+priority and name. Here is the code in the engine that actually implements
 `on_init_params`:
 
 ```lua
@@ -680,9 +678,10 @@ as an event handler on the item's `events` table:
    }
 ```
 
-However, in this case it's more convenient and readable to just define the
-`on_init_params` callback. `events` should be used for defining handlers for
-uncommon events that don't have callback wrappers like `on_init_params` does.
+However, in this case it's cleaner and more convenient to just define the
+`on_init_params` callback. `events` should mainly be used for defining event
+handlers on uncommon events that don't have callback wrappers like
+`on_init_params`.
 
 **Note**: All of this is subject to change, in case a better way of defining
 things in the engine is thought of.

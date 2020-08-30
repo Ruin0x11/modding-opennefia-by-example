@@ -3,7 +3,7 @@
 You can add new books that get randomly generated in dungeons and the like. This
 feature was ported from the old `books.txt` format.
 
-Book items have the ID `elona.book`. The text and title of the book item is
+Book items have the item ID `elona.book`. The text and title of the book item is
 controlled by the `params.book_id` property, which is an ID of an `elona.book`
 data entry.
 
@@ -47,14 +47,14 @@ return {
 
 Next, add an entry for your book in `data` of type `elona.book`.
 
-<span class="filename">Filename: mod/example/init.lua</span>
+<span class="filename">Filename: mod/example/data/book.lua</span>
 
 ```lua
 data:add {
    _type = "elona.book",
    _id = "my_book",
    
-   -- If false, this book will not be randomly generated as part of dungeons.
+   -- If false, this book will not be randomly generated in dungeons and such.
    is_randomly_generated = true
 }
 ```
@@ -64,7 +64,9 @@ yourself.
 
 ```lua
 > book = Item.create("elona.book", Chara.player())
-<map object `base.chara`: 54>
+nil
+> book
+<map object `base.item:elona.book`>
 > book.params.book_id = "example.my_book"
 nil
 ```
