@@ -20,9 +20,12 @@ data:add {
    -- Base weight of this item. 1000 means "1.0s".
    weight = 1000,
    
-   -- These two parameters control how rare this item is when randomly
+   -- These two parameters control how common this item is when randomly
    -- generating items. The default formula is:
-   -- floor(rarity / (1000 + abs(wanted_level - item_level) * coefficient) + 1)
+   --     floor(rarity / (1000 + abs(item_level - dungeon_level) * coefficient) + 1)
+   -- Higher rarity means more abundant. Higher coefficient means less of a
+   -- chance to find the item if the dungeon map's level is too far from the
+   -- item's level.
    rarity = 1000,
    coefficient = 100,
    
@@ -78,7 +81,7 @@ local item = {
           text = "It sells for a lot more than regular doodads.",
           footnote = "~Extra description~"
         }
-        -- You can also keep adding entries _1, _2, and so on.
+        -- You can keep adding entries _1, _2, and so on.
       },
       name = "rare doodad",
       unidentified_name = "a rocky thing" -- optional

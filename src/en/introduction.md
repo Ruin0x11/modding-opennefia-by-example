@@ -7,8 +7,8 @@ version of Elona.
 
 This guide will try to keep the explanations to a minimum and focus on providing
 various examples of how the engine can be added to. For a more comprehensive
-introduction to the engine and a guide on how to set up the source code, you can
-check out the official wiki.
+introduction to the engine and a guide on how to set up the source code, check
+out the official wiki.
 
 ## Following Along
 
@@ -32,17 +32,17 @@ Log.info("Greetings from %s.", _MOD_ID)
 
 ### Interactive code examples
 
-When you see code that looks like this:
+You might see some code that looks like this:
 
 ```lua
 > Chara.create("example.my_putit", Map.current())
 <map object `base.chara:example.my_putit`>
 ```
 
-That means this is an invitation to try out the code interactively in the
-in-game command prompt, also known as the REPL (meaning
-"read-evaluate-print-loop"). You can open the command prompt in-game with the
-grave key (`` ` ``) and paste code into it with `Ctrl-V`.
+This is an invitation to try out the code interactively in the in-game command
+prompt, also known as the REPL (meaning "read-evaluate-print-loop"). You can
+open the command prompt in-game with the grave key (`` ` ``) and paste code into
+it with `Ctrl-V`.
 
 The lines in the code block starting with `>` indicate a command to run, and the
 lines that don't start with `>` incidate the result of running the command. So

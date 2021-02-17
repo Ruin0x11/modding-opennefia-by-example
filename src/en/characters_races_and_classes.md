@@ -40,9 +40,12 @@ data:add {
    -- Color of this character, specified as `{r, g, b}`.
    color = { 255, 155, 155 },
    
-   -- These two parameters control how rare this character is when randomly
+   -- These two parameters control how common this character is when randomly
    -- generating characters. The default formula is:
-   -- floor(rarity / (500 + abs(chara_level - wanted_level) * coefficient))
+   --   floor(rarity / (500 + abs(chara_level - dungeon_level) * coefficient))
+   -- Higher rarity means more abundant. Higher coefficient means less of a
+   -- chance to find the item if the dungeon map's level is too far from the
+   -- character's level.
    rarity = 80000,
    coefficient = 400,
    
