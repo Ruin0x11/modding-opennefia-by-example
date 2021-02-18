@@ -11,7 +11,7 @@ And here's a somewhat more detailed version.
 OpenNefia runs on the LÖVE game engine under the hood. LÖVE comes with an update-and-render loop using the `love.update()` and `love.draw()` functions. Inside each function, OpenNefia uses a coroutine to yield from updating to drawing in a loop, and vice versa. In other words, *almost all of the engine and mod code* runs inside a coroutine of some sort. This is what makes code like the following possible:
 
 ```lua
--- this runs inside love.update().
+-- this runs inside love.update(dt).
 local draw_callback_1 = Anim.load("elona.anim_smoke", x, y)
 local draw_callback_2 = Anim.load("elona.anim_smoke", x, y)
 
@@ -48,6 +48,19 @@ end
 The usage of coroutines like this means you don't have to worry about things like update-draw loops, and can focus on what the intent of the code actually is.
 
 *In vanilla:* There is no distinction between drawing and updating in the HSP version of Elona. Drawing code like `gcopy` would run alongside code like `await` that refreshes the screen and polls for keypresses. This makes sense since HSP's graphics are primarily based around modifying bitmap buffers, not clearing and redrawing the screen each frame.
+
+## Map Objects and Ownership
+In trying to best model the state of the vanilla engine's game world, while also designing the architecture to be futureproof, the below design has been converged on. It can be tricky to understand at first.
+
+1. There is one currently loaded map, `field.map`, of type `InstancedMap`. This single global is what contains almost all of the game object state.
+2. `InstancedMap` implements the interface `ILocation`, meaning it can contain things that implement `IMapObject`. "Map object" is OpenNefia's terminology for game objects with a 2D tile position. Each map object contains an immutable field, `location`, that points to the `ILocation` that contains it.
+3. Changing the position of a map object means using a method on `ILocation`, `:move_object(x, y)`, which updates the object's position inside its `location`. Implementers of `ILocation` can optionally declare that they're "positional" with the method `:is_positional()`, meaning that they will keep track of objects on an arbitrarily sized 2D tile grid. Otherwise, methods like `:move_object(x, y)` become no-ops.
+4. `ILocation:iter()` iterates through every object the location contains. For the purposes of deserialization, it is **critical** that this contract is followed, or the deserializer will not be able to restore the `location` backreference on each map object that it contains. For example, since characters can have *both* an inventory and equipment slots, both of which hold map objects that need to be properly deserialized, the implementation of `IChara:iter()` returns an iterator that chains both the iterators of the inventory and equipment slots together.
+5. Map objects can *themselves* implement `ILocation`. This is used for things like characters, which have inventories of items, and items that act like containers for other items.
+
+*In vanilla:* Flat global arrays are used to keep track of the pool of all objects. All the objects in each map and character's inventory are held in a massive `inv(ci, x)` array, and the maximum number of items for each character and map are hardcoded. For example, index 0-400 could be the list of items on the map, 401-600 could be the inventory of the player character, 601-620 could be for the next character, and so on. However, it was a highly desired feature to be able to remove these arbitrary limits, something which would be impossible to do with the original engine's code without rewriting a lot of the inventory management logic.
+
+Also, the rendering code for each "thing on a 2D grid" was specialized for each type of object. You had the arrays `cdata` for characters, `inv` for items, `mef` for map effects, and `map(6, x, y)` for map features. None of them shared anything in common in the rendering or update code except the fact that they had an X and Y position. In OpenNefia, any object that can be displayed on the map's grid can have its own rendering logic, and is updated and displayed in a uniform way. You could in theory create an entirely new object type that uses this system (but there's no real point since map features can already satisfy such a need).
 
 ## Turn Actions
 Let's try to understand some of the problems OpenNefia attempts to solve by walking through a common gameplay scenario. What happens when a character throws a potion?
@@ -92,4 +105,4 @@ OpenNefia fires up a debug server on port 4567 when it starts, which accepts and
 The Emacs editor extension for the engine is *essential* to my current development process. I end up using the functionality it provides literally all the time for things like fixing import statements, sending snippets of code to the game, loading libraries into the game's REPL, and most importantly, hotloading in changes:
 
 
-It makes development so much easier for me that it's easy to take it for granted. I think it's a good idea to think about what would happen if you design tooling support specifically tailored for the project you're working on. You can imagine the ways those tools could accelerate the development process by taking advantage of the things you know about how the system is designed. For example, there's a "killswitch" function included in the extension, `open-nefia-reset-draw-layers`, that pops off any faulty UI layers by sending a command to the engine via a JSON message. Because input polling can get stuck like this if you accidentally break something while poking around, it's a crucial thing to have on hand to prevent from having to restart the engine and needing to get all the way back to where you were.
+It makes development so much easier for me that it's easy to take it for granted. I think it's a good idea to consider the benefits of designing developer tooling specifically tailored for the project you're working on. You can imagine the ways those tools could accelerate the development process by taking advantage of the things you know about how the system is designed. For example, there's a "killswitch" function included in the extension, `open-nefia-reset-draw-layers`, that pops off any faulty UI layers by sending a command to the engine via a JSON message. Because input polling can get stuck if you accidentally break something while poking around, it's a crucial thing to have on hand to prevent from having to restart the engine and needing to get all the way back to where you were.
