@@ -74,15 +74,15 @@ Although primitive, this debugging feature could potentially be expanded further
 Saving and loading the engine's data is absolutely one of OpenNefia's biggest weaknesses, and it needs to be improved further if the game is to be stable enough to use in practice.
 
 At present, serialization works as follows:
-1. Take the top-level globals, like the current map, and filter it through a special version of `table.deepcopy` that ignores some hardcoded fields like backreferences to parent objects or internal OOP bookkeeping things.
-2. Punt all the rest through [binser]().
+1. Take the top-level globals, like the current map, and filter them through a special version of `table.deepcopy` that ignores some hardcoded fields like backreferences to parent objects or internal OOP bookkeeping things. This is a really terrible way of going about this, and I wish it were better.
+2. Punt the stripped table through [binser]().
 3. Compress the thing and save it to disk.
-4. Load it from disk, decompress it, and restore things that couldn't be serialized like backreferences, event handlers and OO class metatables.
+4. Later on, load it from disk, decompress it, and restore things that couldn't be serialized like backreferences, fields pointing to functions like event handlers, and OO class metatables.
 5. Pray to Ehekatl that nothing breaks.
 
-Real-world serialization performance on a save from actual gameplay isn't well-tested at present, and that's pretty worrying. Most of the engine is tested through the lens of individual features in a "laboratory" environment intended for single-feature testing. A full playthough of the game would certainly be more enlightening, and more likely than not, disheartening. If we can at least aim for similar serialization performance to vanilla while also adding on all the neat and weird things that OpenNefia provides, I'd call it a victory.
+Real-world serialization performance on a save from actual gameplay isn't well-tested at present, and that's very worrying. Most of the engine is tested through the lens of porting individual features in a "laboratory" environment intended for isolated testing. A full playthough of the game would certainly be more enlightening, and more likely than not, disheartening, for seeing if the performance is satisfactory. If we can at least aim for similar serialization performance to vanilla while also adding on all the neat and weird things that OpenNefia provides, I'd call it a win.
 
-A few other details about serialization: the OO system allows you to define `serialize` and `deserialize` methods that control what happens when the thing gets saved to disk. These are useful for removing things like stuff from `data` or backreferences to map objects that aren't desirable to save. The serializer is configured to restore all the class metatables when the data gets loaded again, thanks to built-in support from binser.
+A few other details about serialization: the OO system allows you to define `:serialize()` and `:deserialize()` methods that control what happens when a class instance gets saved to disk. These are useful for removing things like stuff from `data` or backreferences to map objects that aren't desirable to save. The serializer is configured to restore all the class metatables when the data gets loaded again, thanks to built-in support from binser.
 
 What is sorely needed is a good paradigm for saving references to map objects on arbitrary class instances, like an `origin` field on potion puddles that points to the character that originally threw the potion for purposes of aggro. Currently serialization of map object references is only well-supported for map objects contained in something implementing `ILocation`, like `InstancedMap` or `EquipSlots`. I have to mention that there's a *lot* of hackish code surrounding the serialization of map objects, mainly involving the restoration of the `location` field pointing to the object's containing `ILocation`. See `api.MapObject` for details - if you're some kind of masochist, that is.
 
