@@ -52,6 +52,9 @@ The usage of coroutines like this means you don't have to worry about things lik
 ## Turn Actions
 Let's try to understand some of the problems OpenNefia attempts to solve by walking through a common gameplay scenario. What happens when a character throws a potion?
 
+First, we have to understand how the main gameplay loop in OpenNefia works. The most critical code for the main game loop is located in `game/field_logic.lua`.
+
+
 
 
 Although for the purposes of a finished, shipped version of the game this works perfectly fine, it isn't ideal from an extensibility standpoint. Every time you'd want to add a new thing that's throwable, you'd have to insert your own logic in this part of the code to handle what happens when you throw the item.
@@ -66,3 +69,9 @@ Although this paradigm does make it way easier to mod the game, the tradeoff is 
 
 
 Although primitive, this debugging feature could potentially be expanded further. With some Lua hackery we might be able to display the exact line where each event handler was defined, so you don't have to go searching the whole codebase for things. This could even be wrapped in an editor extension that would, for example, give you a list of exact source locations of defined event handlers that you could jump between on the fly.
+
+## Editor environment
+The editor extensions for Emacs are *essential* to my current development process. I end up using the functionality it provides for things like fixing import statements, sending snippets of code to the game, loading libraries into the game's REPL, and most importantly, hotloading in changes:
+
+
+They make development so much easier for me that it's easy to take them for granted. I think it's a good idea to think about what would happen if you design tooling support specifically tailored for the project you're working on, and how that can accelerate the development process by taking advantage of the things you know about how the system is designed. For example, there's a "killswitch" that makes any faulty UI layers un-stuck by sending a command to the engine via a JSON message. Because input polling can get stuck like this if you accidentally break something while debugging, it's a crucial thing to have on hand to prevent from having to restart the engine and get back to where you were.
