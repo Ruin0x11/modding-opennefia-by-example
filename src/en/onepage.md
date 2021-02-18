@@ -71,7 +71,7 @@ Although this paradigm does make it way easier to mod the game, the tradeoff is 
 Although primitive, this debugging feature could potentially be expanded further. With some Lua hackery we might be able to display the exact line where each event handler was defined, so you don't have to go searching the whole codebase for things. This could even be wrapped in an editor extension that would, for example, give you a list of exact source locations of defined event handlers that you could jump between on the fly.
 
 ## Editor environment
-OpenNefia starts a debug server on port 4567 when it starts, which accepts and returns JSON messages. This is used for communication with an external editor process for all sorts of debugging goodies.
+OpenNefia fires up a debug server on port 4567 when it starts, which accepts and returns JSON messages. This is used for communication with an external editor process for all sorts of debugging goodies.
 
 The Emacs editor extension for the engine is *essential* to my current development process. I end up using the functionality it provides literally all the time for things like fixing import statements, sending snippets of code to the game, loading libraries into the game's REPL, and most importantly, hotloading in changes:
 
